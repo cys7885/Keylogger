@@ -14,7 +14,6 @@ typedef void(*PFN_HOOKSTOP)();
 HINSTANCE g_hInst;
 HHOOK g_hHook = NULL;
 HWND hWnd = NULL;
-SHORT nKey = 0;		// 쉬프트키 사용 감지를 위한 변수
 
 int treatKey(string charPressed, DWORD key)
 {
@@ -43,7 +42,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	HookStart = (PFN_HOOKSTART)GetProcAddress(hDll, "HookStart");
 	HookStop = (PFN_HOOKSTOP)GetProcAddress(hDll, "HookStop");
 	PKBDLLHOOKSTRUCT p = (PKBDLLHOOKSTRUCT)lParam;
-
+	static SHORT nKey = 0;		// 쉬프트키 사용 감지를 위한 변수
 	switch (iMessage) {
 	case WM_CREATE:
 		HookStart(hWnd);
